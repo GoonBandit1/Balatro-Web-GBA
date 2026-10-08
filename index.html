@@ -8,8 +8,8 @@
     body, html {
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       background-color: #000;
       overflow: hidden;
     }
@@ -28,11 +28,13 @@
     EJS_gameName = "Balatro GBA";
     EJS_color = "#0066ff";
     EJS_startOnLoaded = true;
-    EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
     
-    // Exact path to your uploaded GBA ROM
+    // Uses jsDelivr CDN to bypass cross-origin / domain locks
+    EJS_pathtodata = "https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/";
+    
+    // File path relative to your repository root
     EJS_gameUrl = "balatro.gba"; 
   </script>
-  <script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/loader.js"></script>
 </body>
 </html>
