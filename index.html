@@ -5,34 +5,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Balatro GBA</title>
   <style>
-    body, html {
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: sans-serif;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       overflow: hidden;
     }
-    #game {
-      width: 100%;
-      height: 100%;
+    #canvas {
+      width: 480px;
+      height: 320px;
+      background: #111;
+      border: 2px solid #333;
+      image-rendering: pixelated;
+    }
+    #status {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 14px;
+    }
+    .controls {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
     }
   </style>
+  <!-- Pure JS GBA Core (No COOP/COEP or Worker Header Dependencies) -->
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/includes/TypedArrayShim.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/core/CPU.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/core/Graphics.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/core/Audio.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/core/Memory.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/core/Save.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/taisel/IodineGBA@master/IodineGBA/IodineGBA.js"></script>
 </head>
 <body>
-  <div id="game"></div>
+
+  <canvas id="canvas" width="240" height="160"></canvas>
+  <div id="status">Loading balatro.gba...</div>
+
+  <div class="controls">
+    Controls: Z = A | X = B | A = L | S = R | Enter = Start | Shift = Select
+  </div>
 
   <script>
-    EJS_player = "#game";
-    EJS_core = "gba";
-    EJS_gameName = "Balatro GBA";
-    EJS_color = "#0066ff";
-    EJS_startOnLoaded = true;
+    const statusEl = document.getElementById("status");
+    const canvas = document.getElementById("canvas");
     
-    // Points directly to the local folder inside your repository
-    EJS_pathtodata = "data/";
-    EJS_gameUrl = "balatro.gba"; 
+    // Initialize GBA Core
+    const iodine = new IodineGBA();
+    iodine.attachCanvas(canvas);
+
+    // Fetch the local GBA ROM directly from the repository
+    fetch("balatro.gba")
+      .then(response => {
+        if (!response.ok) throw new Error("ROM file not found");
+        return response.arrayBuffer();
+      })
+      .then(buffer => {
+        const romData = new Uint8Array(buffer);
+        iodine.attachROM(romData);
+        iodine.play();
+        statusEl.innerText = "Playing Balatro GBA";
+      })
+      .catch(err => {
+        statusEl.innerText = "Error loading ROM: " + err.message;
+      });
+
+    // Keyboard controls mapping
+    window.addEventListener("keydown", (e) => {
+      switch(e.key) {
+        case "ArrowLeft": iodine.keyDown(0); break;
+        case "ArrowRight": iodine.keyDown(1); break;
+        case "ArrowUp": iodine.keyDown(2); break;
+        case "ArrowDown": iodine.keyDown(3); break;
+        case "z": case "Z": iodine.keyDown(4); break; // A
+        case "x": case "X": iodine.keyDown(5); break; // B
+        case "a": case "A": iodine.keyDown(6); break; // L
+        case "s": case "S": iodine.keyDown(7); break; // R
+        case "Enter": iodine.keyDown(8); break;       // Start
+        case "Shift": iodine.keyDown(9); break;       // Select
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      switch(e.key) {
+        case "ArrowLeft": iodine.keyUp(0); break;
+        case "ArrowRight": iodine.keyUp(1); break;
+        case "ArrowUp": iodine.keyUp(2); break;
+        case "ArrowDown": iodine.keyUp(3); break;
+        case "z": case "Z": iodine.keyUp(4); break;
+        case "x": case "X": iodine.keyUp(5); break;
+        case "a": case "A": iodine.keyUp(6); break;
+        case "s": case "S": iodine.keyUp(7); break;
+        case "Enter": iodine.keyUp(8); break;
+        case "Shift": iodine.keyUp(9); break;
+      }
+    });
   </script>
-  <script src="data/loader.js"></script>
 </body>
 </html>
